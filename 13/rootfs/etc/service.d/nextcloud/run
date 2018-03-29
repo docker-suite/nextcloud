@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# set -e : Exit the script if any statement returns a non-true return value.
+set -e
+
+# Redirect STDERR to STDOUT
+exec 2>&1
+
+# Make environnement variables accessibles
+[ -r /etc/envvars ] && . /etc/envvars
+
+# Wait for database connection
+if [ -n "$MYSQL_HOST" ]; then
+
+    host=$(echo $MYSQL_HOST | cut -d ":" -f 1)
+    port=$(echo $MYSQL_HOST | cut -d ":" -f 2)
+
+    wait-host "${host}:${port}" \
+        -t 0 \
+        -d 2 \
+        -m "Waiting for database connection on host: ${host} and port: ${port}" \
+        -s \
+        -- echo "Database connection established on host: ${host} and port: ${port}" \
+        || echo "Error while trying to connect to the database"
+fi
+
+# Start nextcloud
+exec su-exec ${ocuser} php-fpm
+
+# This exit code will be sent as the first parameter to the finish script
+exit 1
+
