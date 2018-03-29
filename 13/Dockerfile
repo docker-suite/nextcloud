@@ -16,52 +16,53 @@ RUN set -x \
 RUN \
 	# Print executed commands
 	set -x \
-    # Add codecasts.rocks php repository
-    && echo "@php http://php.codecasts.rocks/v3.7/php-7.1" >> /etc/apk/repositories \
     # Update repository indexes
     && apk-update \
     # Add recommanded packages : https://docs.nextcloud.com/server/12/admin_manual/installation/source_installation.html#prerequisites-label
     && apk-install --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
         # Required : ctype, dom, GD, iconv, JSON, libxml, mbstring, posix, SimpleXML, XMLReader, XMLWriter ,zip, zlib
-        php7-ctype@php \
-        php7-dom@php \
-        php7-gd@php \
-        php7-iconv@php \
-        php7-json@php \
+        php7.1-ctype \
+        php7.1-dom \
+        php7.1-gd \
+        php7.1-iconv \
+        php7.1-json \
         libxml2 \
-        php7-mbstring@php \
-        php7-posix@php \
-        php7-xmlreader@php \
-        php7-zip@php \
-        php7-zlib@php \
+        php7.1-mbstring \
+        php7.1-posix \
+        php7.1-simplexml \
+        php7.1-xmlreader \
+        php7.1-xmlwriter \
+        php7.1-zip \
+        php7.1-zlib \
         # Database connectors : pdo_sqlite, pdo_mysql, pdo_pgsql
-        php7-pdo_sqlite@php \
-        php7-pdo_mysql@php \
-        php7-pgsql@php \
+        php7.1-pdo_sqlite \
+        php7.1-pdo_mysql \
+        php7.1-pgsql \
         # Recommended packages : curl, fileinfo, bz2, intl, mcrypt, openssl
-        php7-curl@php \
-        php7-bz2@php \
-        php7-intl@php \
-        php7-mcrypt@php \
-        php7-openssl@php \
+        php7.1-curl \
+        php7.1-fileinfo \
+        php7.1-bz2 \
+        php7.1-intl \
+        php7.1-mcrypt \
+        php7.1-openssl \
         # Required for specific apps : ldap, **smbclient**, ftp, imap
-        php7-ldap@php \
-        php7-ftp@php \
-        php7-imap@php \
+        php7.1-ldap \
+        php7.1-ftp \
+        php7.1-imap \
         # Recommended for specific apps : exif, gmp
-        php7-exif@php \
-        php7-gmp@php \
+        php7.1-exif \
+        php7.1-gmp \
         # For enhanced server performance : apcu, memcached, redis
-        php7-apcu@php \
-        php7-memcached@php \
-        php7-redis@php \
+        php7.1-apcu \
+        php7.1-memcached \
+        php7.1-redis \
         # For preview generation : imagick, avconv or ffmpeg, OpenOffice or LibreOffice
         imagemagick-libs \
-        php7-imagick@php \
+        php7.1-imagick \
         ffmpeg libva \
         libreoffice \
         # For command line processing : pcntl
-        php7-pcntl@php \
+        php7.1-pcntl \
         # Other tools
         icu-libs \
         boost-filesystem \
@@ -81,15 +82,15 @@ RUN \
         g++ \
         gcc \
         make \
-        php7-dev \
+        php7.1-dev \
         re2c \
         samba-dev \
         zlib-dev \
     # Compile libsmbclient-php
     && git clone https://github.com/eduardok/libsmbclient-php.git /tmp/smbclient \
     && cd /tmp/smbclient \
-    && phpize7 \
-    && ./configure --with-php-config=/usr/bin/php-config7 \
+    && phpize \
+    && ./configure --with-php-config=/usr/bin/php-config \
     && make \
     && make install \
     # Activate libsmbclient-php
