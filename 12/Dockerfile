@@ -1,3 +1,25 @@
+# Php repository.
+# (This is a workaround when behind a proxy to prevent 'Permission denied' from php.earth repo)
+FROM craftdock/alpine-base as php_repository
+
+RUN \
+	# Print executed commands
+	set -x \
+    # Update repository indexes
+    && apk-update \
+    # Add packages
+    && apk-install --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
+        wget \
+    # Create php repository folder
+    && mkdir -p /php.earth/x86_64/ \
+    && cd /php.earth/x86_64/ \
+    # Copy all packages from  php.earth repo to /php.earth/x86_64
+    && wget -r -nd -np -k http://repos.php.earth/alpine/v3.7/x86_64/ \
+	# Clear apk's cache
+	&& apk-cleanup
+
+
+# Nextcloud
 FROM craftdock/alpine-php7:7.1
 
 LABEL maintainer="Hexosse <hexosse@gmail.com>" \
@@ -5,6 +27,12 @@ LABEL maintainer="Hexosse <hexosse@gmail.com>" \
 
 # Nextcloud version
 ENV NEXTCLOUD_VERSION 12.0.6
+
+# Trust this project public key to trust the php packages.
+ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.pub
+
+# Copy all packages from
+COPY --from=php_repository /php.earth/x86_64 /tmp/php.earth/x86_64
 
 
 # Ensure nextcloud user exists
@@ -19,7 +47,7 @@ RUN \
     # Update repository indexes
     && apk-update \
     # Add recommanded packages : https://docs.nextcloud.com/server/12/admin_manual/installation/source_installation.html#prerequisites-label
-    && apk-install --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
+    && apk-install --repository /tmp/php.earth \
         # Required : ctype, dom, GD, iconv, JSON, libxml, mbstring, posix, SimpleXML, XMLReader, XMLWriter ,zip, zlib
         php7.1-ctype \
         php7.1-dom \
@@ -60,7 +88,7 @@ RUN \
         imagemagick-libs \
         php7.1-imagick \
         ffmpeg libva \
-        libreoffice \
+        libreoffice icu-libs \
         # For command line processing : pcntl
         php7.1-pcntl \
         # Other tools
@@ -74,7 +102,7 @@ RUN \
     && apk-install --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
         samba \
     # Add temporary packages to compile libsmbclient-php
-    && apk-install --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --virtual .build-dependencies \
+    && apk-install --repository /tmp/php.earth --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --virtual .build-dependencies \
         git \
         autoconf \
         automake \
@@ -121,4 +149,4 @@ RUN curl -fsSL -o nextcloud.tar.bz2 \
 COPY /rootfs /
 
 # Add volume to allow persistence
-VOLUME ["/nextcloud"]
+VOLUME ["/nextcloud", "/var/www"]
