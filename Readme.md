@@ -128,4 +128,4 @@ There is a script for that, so you shouldn't bother to log into the container, s
 
 
 [alpine-php7]: https://hub.docker.com/r/craftdock/alpine-php7/
-[docker-compose]: https://github.com/CraftDock/nextcloud-fpm/blob/master/.example/docker-compose.yml
+[docker-compose]: https://github.com/CraftDock/nextcloud-fpm/blob/master/.example/mariadb-redis-caddy/docker-compose.yml
