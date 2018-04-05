@@ -1,0 +1,82 @@
+version: '3'
+
+volumes:
+  db:
+  db_backup:
+  nextcloud_www:
+  nextcloud_log:
+  nextcloud_data:
+  certs:
+
+services:
+  # Database
+  db:
+    image: craftdock/mariadb
+    container_name: nextcloud_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=MyRootPassword          # Change data base root password
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=MyDbPassword
+      - CHARACTER_SET_SERVER=utf8mb4                # Database Requirements from Nextcloud Administration Manual
+      - COLLATION_SERVER=utf8mb4_general_ci         # Database Requirements from Nextcloud Administration Manual
+      - INNODB_LARGE_PREFIX=on                      # Database Requirements from Nextcloud Administration Manual
+      - INNODB_FILE_FORMAT=barracuda                # Database Requirements from Nextcloud Administration Manual
+      - INNODB_FILE_PER_TABLE=on                    # Database Requirements from Nextcloud Administration Manual
+    volumes:
+      - db:/var/lib/mysql
+      - db_backup:/backup/mysql
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: nextcloud_redis
+    restart: unless-stopped
+
+  # Nextcloud
+  app:
+    build: ./app
+    container_name: nextcloud_app
+    restart: unless-stopped
+    environment:
+      - OPCACHE_ENABLE=1                            # Requirements from Nextcloud Administration Manual
+      - OPCACHE_ENABLE_CLI=1                        # Requirements from Nextcloud Administration Manual
+      - OPCACHE_INTERNED_STRINGS_BUFFER=8           # Requirements from Nextcloud Administration Manual
+      - OPCACHE_MAX_ACCELERATED_FILES=10000         # Requirements from Nextcloud Administration Manual
+      - OPCACHE_ENABLE_MEMORY_CONSUMPTION=128       # Requirements from Nextcloud Administration Manual
+      - OPCACHE_SAVE_COMMENTS=1                     # Requirements from Nextcloud Administration Manual
+      - OPCACHE_REVALIDATE_FREQ=1                   # Requirements from Nextcloud Administration Manual
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=MyDbPassword
+      - MYSQL_HOST=db:3306
+      - NEXTCLOUD_ADMIN_USER=admin                  # You can create the admin user here
+      - NEXTCLOUD_ADMIN_PASSWORD=My@dminP@ssw0rd
+    volumes:
+      - nextcloud_www:/var/www
+      - nextcloud_data:/nextcloud/data
+    depends_on:
+      - db
+      - redis
+
+  # Caddy
+  web:
+    build: ./web
+    container_name: nextcloud_web
+    restart: unless-stopped
+    environment:
+      - PHP_FPM_HOST=app
+      - PHP_FPM_PORT=9000
+      - CADDY_DOMAIN=localhost:80
+      #- CADDY_CA=https://acme-staging.api.letsencrypt.org/directory     # remove CADDY_CA=https://acme-staging.api.letsencrypt.org/directory in production
+      #- CADDY_DOMAIN=nextcloud.example.org
+      #- CADDY_EMAIL=me@example.org
+    volumes:
+      - nextcloud_www:/var/www:ro
+      - certs:/etc/caddy/certificates
+    ports:
+        - "80:80"
+        - "443:443"
+    depends_on:
+      - app

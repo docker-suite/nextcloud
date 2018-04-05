@@ -1,0 +1,118 @@
+version: '3'
+
+volumes:
+  db:
+  db_backup:
+  nextcloud_www:
+  nextcloud_log:
+  nextcloud_data:
+  certs:
+  conf.d:
+  vhost.d:
+  html:
+
+networks:
+  proxy-tier:
+
+services:
+  # Database
+  db:
+    image: craftdock/mariadb
+    container_name: nextcloud_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=MyRootPassword          # Change data base root password
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=MyDbPassword
+      - CHARACTER_SET_SERVER=utf8mb4                # Database Requirements from Nextcloud Administration Manual
+      - COLLATION_SERVER=utf8mb4_general_ci         # Database Requirements from Nextcloud Administration Manual
+      - INNODB_LARGE_PREFIX=on                      # Database Requirements from Nextcloud Administration Manual
+      - INNODB_FILE_FORMAT=barracuda                # Database Requirements from Nextcloud Administration Manual
+      - INNODB_FILE_PER_TABLE=on                    # Database Requirements from Nextcloud Administration Manual
+    volumes:
+      - db:/var/lib/mysql
+      - db_backup:/backup/mysql
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: nextcloud_redis
+
+  # Nextcloud
+  app:
+    build: ./app
+    container_name: nextcloud_app
+    restart: unless-stopped
+    environment:
+      - OPCACHE_ENABLE=1                            # Requirements from Nextcloud Administration Manual
+      - OPCACHE_ENABLE_CLI=1                        # Requirements from Nextcloud Administration Manual
+      - OPCACHE_INTERNED_STRINGS_BUFFER=8           # Requirements from Nextcloud Administration Manual
+      - OPCACHE_MAX_ACCELERATED_FILES=10000         # Requirements from Nextcloud Administration Manual
+      - OPCACHE_ENABLE_MEMORY_CONSUMPTION=128       # Requirements from Nextcloud Administration Manual
+      - OPCACHE_SAVE_COMMENTS=1                     # Requirements from Nextcloud Administration Manual
+      - OPCACHE_REVALIDATE_FREQ=1                   # Requirements from Nextcloud Administration Manual
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=MyDbPassword
+      - MYSQL_HOST=db:3306
+      - NEXTCLOUD_ADMIN_USER=admin                  # You can create the admin user here
+      - NEXTCLOUD_ADMIN_PASSWORD=My@dminP@ssw0rd
+    volumes:
+      - nextcloud_www:/var/www
+      - nextcloud_data:/nextcloud/data
+    depends_on:
+      - db
+      - redis
+
+  # Nginx
+  web:
+    build: ./web
+    container_name: nextcloud_web
+    restart: unless-stopped
+    environment:
+      - VIRTUAL_HOST=                               # nextcloud.example.org
+      - LETSENCRYPT_HOST=                           # nextcloud.example.org
+      - LETSENCRYPT_EMAIL=                          # me@example.org
+      - LETSENCRYPT_TEST=true                       # remove in production
+    volumes:
+      - nextcloud_www:/var/www:ro
+    depends_on:
+      - app
+    networks:
+      - proxy-tier
+      - default
+
+  # Nginx proxy
+  proxy:
+    build: ./proxy
+    container_name: nextcloud_proxy
+    restart: unless-stopped
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    volumes:
+      - certs:/etc/nginx/certs:ro
+      - conf.d:/etc/nginx/conf.d
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - proxy-tier
+
+  letsencrypt-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nextcloud_proxy_companion
+    restart: unless-stopped
+    volumes:
+      - certs:/etc/nginx/certs
+      - conf.d:/etc/nginx/conf.d
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy-tier
+    depends_on:
+      - proxy
