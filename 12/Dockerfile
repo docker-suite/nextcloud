@@ -26,7 +26,7 @@ LABEL maintainer="Hexosse <hexosse@gmail.com>" \
       description="Nextcloud image based on alpine with runit process supervisor."
 
 # Nextcloud version
-ENV NEXTCLOUD_VERSION 12.0.6
+ENV NEXTCLOUD_VERSION 12.0.9
 
 # Trust this project public key to trust the php packages.
 ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.pub
