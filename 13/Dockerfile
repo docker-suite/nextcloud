@@ -124,5 +124,8 @@ RUN curl -fsSL -o nextcloud.tar.bz2 \
 # Copy scripts
 COPY /rootfs /
 
+# Make bin scripts executables
+RUN find /usr/local/bin/ -type f -print0 | xargs -0 chmod +x
+
 # Add volume to allow persistence
 VOLUME ["/nextcloud", "/var/www"]
