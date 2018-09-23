@@ -4,15 +4,21 @@
   "versions": [
     {
       "version": "latest",
-      "dockerfile": "13/Dockerfile",
-      "context": "13/.",
-      "data": "13.0.6"
+      "dockerfile": "14/Dockerfile",
+      "context": "14/.",
+      "data": "14.0.0"
     },
     {
       "version": "13",
       "dockerfile": "13/Dockerfile",
       "context": "13/.",
       "data": "13.0.6"
+    },
+    {
+      "version": "14",
+      "dockerfile": "14/Dockerfile",
+      "context": "14/.",
+      "data": "14.0.0"
     },
     {
       "version": "12",
