@@ -10,4 +10,4 @@ exec 2>&1
 [ -r /etc/envvars ] && . /etc/envvars
 
 # execute occ
-su-exec ${ocuser} php -d memory_limit=${CORE_MEMORY_LIMIT:='128M'} -f ${ocpath}/occ "$@"
+su-exec ${ocuser} php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${ocpath}/occ "$@"

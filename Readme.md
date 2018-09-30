@@ -40,7 +40,7 @@ PHP_FPM_PM_CLEAR_ENV                | `no`
 PHP_FPM_PM_CATCH_WORKERS_OUTPUT     | `yes`
 CORE_REALPATH_CACHE_SIZE            | `256K`
 CORE_REALPATH_CACHE_TTL             | `600`
-CORE_MEMORY_LIMIT                   | `128M`
+CORE_MEMORY_LIMIT                   | `512M`
 CORE_UPLOAD_MAX_FILESIZE            | `1G`
 CORE_POST_MAX_SIZE                  | `1G`
 TIMEZONE                            | `UTC`
