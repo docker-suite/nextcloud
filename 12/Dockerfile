@@ -23,7 +23,7 @@ RUN \
     # Update repository indexes
     && apk-update \
     # Add recommanded packages : https://docs.nextcloud.com/server/12/admin_manual/installation/source_installation.html#prerequisites-label
-    && apk-install --repository https://repos.php.earth/alpine/v3.7 \
+    && apk-install --repository https://repos.php.earth/alpine/v3.8 \
         # Required : ctype, dom, GD, iconv, JSON, libxml, mbstring, posix, SimpleXML, XMLReader, XMLWriter ,zip, zlib
         php7.1-ctype \
         php7.1-dom \
@@ -78,7 +78,7 @@ RUN \
     && apk-install --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
         samba \
     # Add temporary packages to compile libsmbclient-php
-    && apk-install --repository https://repos.php.earth/alpine/v3.7 --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --virtual .build-dependencies \
+    && apk-install --repository https://repos.php.earth/alpine/v3.8 --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --virtual .build-dependencies \
         git \
         autoconf \
         automake \
