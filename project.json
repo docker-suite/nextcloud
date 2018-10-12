@@ -6,7 +6,7 @@
       "version": "latest",
       "dockerfile": "14/Dockerfile",
       "context": "14/.",
-      "data": "14.0.1"
+      "data": "14.0.2"
     },
     {
       "version": "13",
@@ -18,7 +18,7 @@
       "version": "14",
       "dockerfile": "14/Dockerfile",
       "context": "14/.",
-      "data": "14.0.1"
+      "data": "14.0.2"
     },
     {
       "version": "12",
