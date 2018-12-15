@@ -1,0 +1,1 @@
+*/15 * * * * su-exec www-data php -f /var/www/cron.php
