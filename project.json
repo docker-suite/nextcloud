@@ -6,13 +6,13 @@
       "version": "latest",
       "dockerfile": "15/Dockerfile",
       "context": "15/.",
-      "data": "15.0.5"
+      "data": "15.0.6"
     },
     {
       "version": "15",
       "dockerfile": "15/Dockerfile",
       "context": "15/.",
-      "data": "15.0.5"
+      "data": "15.0.6"
     },
     {
       "version": "14",
