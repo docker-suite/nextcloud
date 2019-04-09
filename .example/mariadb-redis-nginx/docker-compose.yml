@@ -52,6 +52,11 @@ services:
       - OPCACHE_ENABLE_MEMORY_CONSUMPTION=128       # Requirements from Nextcloud Administration Manual
       - OPCACHE_SAVE_COMMENTS=1                     # Requirements from Nextcloud Administration Manual
       - OPCACHE_REVALIDATE_FREQ=1                   # Requirements from Nextcloud Administration Manual
+      - PHP_FPM_PM=dynamic                          #
+      - PHP_FPM_PM_MAX_CHILDREN=120                 # PHP-FPM tunning
+      - PHP_FPM_PM_START_SERVER=12                  # https://docs.nextcloud.com/server/14/admin_manual/configuration_server/server_tuning.html
+      - PHP_FPM_PM_MIN_SPARE_SERVERS=6              #
+      - PHP_FPM_PM_MAX_SPARE_SERVERS=18             #
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=MyDbPassword
