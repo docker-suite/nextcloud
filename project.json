@@ -18,7 +18,7 @@
       "version": "14",
       "dockerfile": "14/Dockerfile",
       "context": "14/.",
-      "data": "14.0.8"
+      "data": "14.0.10"
     },
     {
       "version": "13",
