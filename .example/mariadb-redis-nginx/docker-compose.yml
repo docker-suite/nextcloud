@@ -57,6 +57,13 @@ services:
       - PHP_FPM_PM_START_SERVER=12                  # https://docs.nextcloud.com/server/14/admin_manual/configuration_server/server_tuning.html
       - PHP_FPM_PM_MIN_SPARE_SERVERS=6              #
       - PHP_FPM_PM_MAX_SPARE_SERVERS=18             #
+      - CORE_FILE_UPLOADS=1
+      - CORE_UPLOAD_TMP_DIR=/var/www/nextcloud/data/upload-tmp
+      - CORE_UPLOAD_MAX_FILESIZE=4G
+      - CORE_POST_MAX_SIZE=4G
+      - CORE_OUTPUT_BUFFERING=0
+      - CORE_MAX_INPUT_TIME=7200
+      - CORE_MAX_EXECUTION_TIME=7200
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=MyDbPassword
