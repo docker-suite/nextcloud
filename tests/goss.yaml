@@ -1,0 +1,14 @@
+group:
+  nextcloud:
+    exists: true
+    skip: false
+
+user:
+  nextcloud:
+    exists: true
+    groups:
+    - nextcloud
+    - www-data
+    skip: false
+
+# TODO: Add more tests

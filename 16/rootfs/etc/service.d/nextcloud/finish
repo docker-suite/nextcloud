@@ -1,6 +1,0 @@
-#!/bin/sh
-
-echo >&2 "Ending Service nextcloud with parameters ${@}"
-
-# Tell runit to shutdown the system:
-[ "$1" = 1 ] && runit stop &

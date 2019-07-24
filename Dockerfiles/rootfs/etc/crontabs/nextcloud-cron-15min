@@ -1,0 +1,1 @@
+*/15 * * * * su-exec root php -f /var/www/cron.php

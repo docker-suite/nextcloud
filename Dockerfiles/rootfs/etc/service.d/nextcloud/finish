@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Add libraries
+source /usr/local/lib/bash-logger.sh
+source /usr/local/lib/persist-env.sh
+
+WARNING "[NEXTCLOUD] -- Ending Service nextcloud with parameters ${@}"
+
+# Tell runit to shutdown the system:
+[ "$1" = 1 ] && runit stop &

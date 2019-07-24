@@ -1,0 +1,153 @@
+FROM dsuite/alpine-php7:{{NEXTCLOUD_PHP}}
+
+LABEL maintainer="Hexosse <hexosse@gmail.com>" \
+      description="Nextcloud image based on alpine with runit process supervisor." \
+      vendor="docker-suite" \
+      license="MIT"
+
+ENV NEXTCLOUD_MAJOR="{{NEXTCLOUD_MAJOR}}" \
+    NEXTCLOUD_VERSION="{{NEXTCLOUD_VERSION}}"
+
+
+## php packages
+COPY --from=dsuite/repo-php:all /repo /tmp/repo
+COPY --from=dsuite/repo-php:all /etc/apk/keys /etc/apk/keys
+
+
+# Install
+RUN \
+	# Print executed commands
+	set -x \
+    # Update repository indexes
+    && apk update \
+    # Create nextcloud group
+    && addgroup -S nextcloud \
+    # Create nextcloud user
+    && adduser -D -S -G nextcloud nextcloud \
+    # nextcloud user must be memnber of www-data
+    && adduser nextcloud www-data \
+    # Add recommanded packages : https://docs.nextcloud.com/server/16/admin_manual/installation/source_installation.html#prerequisites-label
+    && apk-install --repository /tmp/repo/php/v3.9 \
+        # Required : ctype, dom, GD, iconv, JSON, libxml, mbstring, posix, SimpleXML, XMLReader, XMLWriter ,zip, zlib
+        php{{NEXTCLOUD_PHP}}-ctype \
+        php{{NEXTCLOUD_PHP}}-dom \
+        php{{NEXTCLOUD_PHP}}-gd \
+        php{{NEXTCLOUD_PHP}}-iconv \
+        php{{NEXTCLOUD_PHP}}-json \
+        libxml2 \
+        php{{NEXTCLOUD_PHP}}-mbstring \
+        php{{NEXTCLOUD_PHP}}-posix \
+        php{{NEXTCLOUD_PHP}}-simplexml \
+        php{{NEXTCLOUD_PHP}}-xmlreader \
+        php{{NEXTCLOUD_PHP}}-xmlwriter \
+        php{{NEXTCLOUD_PHP}}-zip \
+        php{{NEXTCLOUD_PHP}}-zlib \
+        # Database connectors : pdo_sqlite, pdo_mysql, pdo_pgsql
+        php{{NEXTCLOUD_PHP}}-pdo_sqlite \
+        php{{NEXTCLOUD_PHP}}-pdo_mysql \
+        php{{NEXTCLOUD_PHP}}-pgsql \
+        # Recommended packages : curl, fileinfo, bz2, intl, openssl
+        php{{NEXTCLOUD_PHP}}-curl \
+        php{{NEXTCLOUD_PHP}}-fileinfo \
+        php{{NEXTCLOUD_PHP}}-bz2 \
+        php{{NEXTCLOUD_PHP}}-intl \
+        php{{NEXTCLOUD_PHP}}-openssl \
+        # Required for specific apps : ldap, **smbclient**, ftp, imap
+        php{{NEXTCLOUD_PHP}}-ldap \
+        php{{NEXTCLOUD_PHP}}-ftp \
+        php{{NEXTCLOUD_PHP}}-imap \
+        # Recommended for specific apps : exif, gmp
+        php{{NEXTCLOUD_PHP}}-exif \
+        php{{NEXTCLOUD_PHP}}-gmp \
+        # For enhanced server performance : apcu, memcached, redis
+        php{{NEXTCLOUD_PHP}}-apcu \
+        php{{NEXTCLOUD_PHP}}-memcached \
+        php{{NEXTCLOUD_PHP}}-redis \
+        # For preview generation : imagick, avconv or ffmpeg, OpenOffice or LibreOffice
+        imagemagick-libs \
+        php{{NEXTCLOUD_PHP}}-imagick \
+        ffmpeg libva \
+        libreoffice icu-libs \
+        # For command line processing : pcntl
+        php{{NEXTCLOUD_PHP}}-pcntl \
+        # Other tools
+        icu-libs \
+        boost-filesystem \
+    # Add packages used in this image
+    && apk-install --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
+        rsync \
+    # Download, build and instal libsmbclient-php
+    # Add necessary packages to install libsmbclient-php
+    && apk-install --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
+        samba \
+    # Add temporary packages to compile libsmbclient-php
+    && apk-install --repository /tmp/repo/php/v3.9 --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --virtual .nextcloud-build-deps \
+        git \
+        autoconf \
+        automake \
+        file \
+        g++ \
+        gcc \
+        make \
+        php{{NEXTCLOUD_PHP}}-dev \
+        re2c \
+        samba-dev \
+        zlib-dev \
+    # Compile libsmbclient-php
+    && git clone https://github.com/eduardok/libsmbclient-php.git /tmp/smbclient \
+    && cd /tmp/smbclient \
+    && phpize \
+    && ./configure --with-php-config=/usr/bin/php-config \
+    && make \
+    && make install \
+    # Activate libsmbclient-php
+    && echo "extension=\"smbclient.so\"" > /etc/php7/conf.d/00_smbclient.ini \
+    # Remove existing service
+	&& rm -rf /etc/service.d/php-fpm \
+	# Clear apk's cache
+	&& apk-remove .nextcloud-build-deps \
+	&& apk-cleanup
+
+
+# Copy GPG key
+COPY /nextcloud.asc /nextcloud.asc
+
+
+# Download, install and verify Nextcloud
+RUN \
+	# Print executed commands
+	set -x \
+    # Download
+    && nextcloud_url="https://download.nextcloud.com/server/releases/" \
+    && curl -fSL "${nextcloud_url}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" -o /tmp/nextcloud.tar.bz2 \
+    && curl -fSL "${nextcloud_url}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2.asc" -o /tmp/nextcloud.tar.bz2.asc \
+    && GPG_KEYS=/nextcloud.asc gpg-verify /tmp/nextcloud.tar.bz2.asc /tmp/nextcloud.tar.bz2 \
+    # Extract
+    && mkdir /usr/src/ \
+	&& tar -xjf /tmp/nextcloud.tar.bz2 -C /usr/src/ \
+    #
+    && rm -rf /usr/src/nextcloud/updater \
+    && mkdir -p /usr/src/nextcloud/assets \
+    && mkdir -p /usr/src/nextcloud/config \
+    && mkdir -p /usr/src/nextcloud/custom_apps \
+    && mkdir -p /usr/src/nextcloud/themes \
+    && mkdir -p /usr/src/nextcloud/updater \
+    && chmod +x /usr/src/nextcloud/occ
+
+
+# Copy scripts
+COPY /rootfs /
+
+
+# Scripts must be executable
+RUN \
+	# Print executed commands
+	set -x \
+    # entrypoint scripts
+    && chmod +x /etc/entrypoint.d/*.sh \
+    # bin scripts
+    && find /usr/local/bin/ -type f -print0 | xargs -0 chmod +x
+
+
+# Add volume to allow persistence
+VOLUME ["/nextcloud", "/var/www"]
