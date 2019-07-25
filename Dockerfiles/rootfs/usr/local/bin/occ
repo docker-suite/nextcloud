@@ -18,7 +18,7 @@ ocpath=$(env_get ocpath)
 CORE_MEMORY_LIMIT=$(env_get CORE_MEMORY_LIMIT)
 
 # execute occ
-if [ "$(ls -l /usr/local/bin/occ  | awk '{ print $3 }')" = "root" ]; then
+if [ "$(ls -l ${ocpath}/config/config.php  | awk '{ print $3 }')" = "root" ]; then
     su-exec ${rootuser} php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${ocpath}/occ "$@"
 else
     su-exec ${ocuser} php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${ocpath}/occ "$@"
