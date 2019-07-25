@@ -2,26 +2,30 @@
 
 	root   /var/www
 
-	#log /var/log/nextcloud_access.log {                          # Change path syntax for your OS or your preferred location!
-	#	rotate_size 1          # Rotate after 1 MB
-	#	rotate_age  7          # Keep log files for 7 days
-	#	rotate_keep 2          # Keep at most 2 log files
-	#}
+    # Change path syntax for your OS or your preferred location!
+	log /var/log/nextcloud_access.log {
+		rotate_size 1          # Rotate after 1 MB
+		rotate_age  7          # Keep log files for 7 days
+		rotate_keep 2          # Keep at most 2 log files
+	}
 
-	#errors /var/log/nextcloud_errors.log {                        # Change path syntax for your OS or your preferred location!
-	#	rotate_size 1          # Set max size 1 MB
-	#	rotate_age  7          # Keep log files for 7 days
-	#	rotate_keep 2          # Keep at most 2 log files
-	#}
+    # Change path syntax for your OS or your preferred location!
+	errors /var/log/nextcloud_errors.log {
+		rotate_size 1          # Set max size 1 MB
+		rotate_age  7          # Keep log files for 7 days
+		rotate_keep 2          # Keep at most 2 log files
+	}
 
 	#log    /var/log/nextcloud_access.log
 	#errors /var/log/nextcloud_errors.log
 
-    log     stdout
-    errors  stdout
+    #log     stdout
+    #errors  stdout
 
+    #
 	gzip
 
+    #
 	fastcgi / {{PHP_FPM_HOST}}:{{PHP_FPM_PORT}} php {
 		env PATH /bin
 	}

@@ -5,5 +5,5 @@ COPY config/*.php /usr/src/nextcloud/config/
 
 # Nextcloud tmp directory
 RUN \
-    mkdir -p /var/www/nextcloud/data/upload-tmp \
-    && chown -R www-data:www-data /var/www/nextcloud/data/upload-tmp
+    mkdir -p /var/www/upload-tmp \
+    && chown -R www-data:www-data /var/www/upload-tmp

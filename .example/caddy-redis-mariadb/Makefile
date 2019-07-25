@@ -2,12 +2,15 @@
 DIR:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 
 build:
+	echo "**** Build containers ****"
 	docker-compose --project-name nextcloud build
 
 run: build
+	echo "**** Running containers ... ****"
 	docker-compose --project-name nextcloud up
 
-down:
+stop:
+	echo "**** Stopping containers ... ****"
 	docker-compose --project-name nextcloud down
 
 clean:
