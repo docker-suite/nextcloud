@@ -1,1 +1,2 @@
-*/15 * * * * su-exec root php -f /var/www/cron.php
+# Console has to be executed with the same user as the web server is operated
+*/15 * * * * su-exec www-data php -f /var/www/cron.php
