@@ -1,3 +1,4 @@
 FROM jwilder/nginx-proxy:alpine
 
-COPY uploadsize.conf /etc/nginx/conf.d/uploadsize.conf
+# Copy config
+COPY config/*.conf /etc/nginx/conf.d/

@@ -7,9 +7,6 @@ volumes:
   vhost.d:
   html:
 
-networks:
-  proxy-tier:
-
 services:
   # Database
   db:
@@ -34,6 +31,7 @@ services:
   redis:
     image: redis:alpine
     container_name: nextcloud_redis
+    restart: unless-stopped
 
   # Nextcloud
   app:
@@ -53,13 +51,14 @@ services:
       - PHP_FPM_PM_START_SERVER=12                  # https://docs.nextcloud.com/server/14/admin_manual/configuration_server/server_tuning.html
       - PHP_FPM_PM_MIN_SPARE_SERVERS=6              #
       - PHP_FPM_PM_MAX_SPARE_SERVERS=18             #
-      - CORE_FILE_UPLOADS=1
-      - CORE_UPLOAD_TMP_DIR=/var/www/nextcloud/data/upload-tmp
-      - CORE_UPLOAD_MAX_FILESIZE=4G
-      - CORE_POST_MAX_SIZE=4G
-      - CORE_OUTPUT_BUFFERING=0
-      - CORE_MAX_INPUT_TIME=7200
-      - CORE_MAX_EXECUTION_TIME=7200
+      - CORE_FILE_UPLOADS=1                         #
+      - CORE_UPLOAD_TMP_DIR=/var/www/upload-tmp     #
+      - CORE_UPLOAD_MAX_FILESIZE=4G                 #
+      - CORE_POST_MAX_SIZE=4G                       # More tunning
+      - CORE_OUTPUT_BUFFERING=0                     # https://www.techandme.se/increase-max-file-size/
+      - CORE_MAX_INPUT_TIME=7200                    #
+      - CORE_MAX_EXECUTION_TIME=7200                #
+      - CORE_MEMORY_LIMIT=1024M
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=MyDbPassword
@@ -75,52 +74,17 @@ services:
 
   # Nginx
   web:
-    build: ./web
+    build:
+      context: ./web
+      args:
+        http_proxy: ${http_proxy}
+        https_proxy: ${https_proxy}
     container_name: nextcloud_web
     restart: unless-stopped
-    environment:
-      - VIRTUAL_HOST=                               # nextcloud.example.org
-      - LETSENCRYPT_HOST=                           # nextcloud.example.org
-      - LETSENCRYPT_EMAIL=                          # me@example.org
-      - LETSENCRYPT_TEST=true                       # remove in production
     volumes:
       - nextcloud_www:/var/www:ro
+      - $PWD/tmp/nextcloud/log:/var/log
+    ports:
+        - "80:80"
     depends_on:
       - app
-    networks:
-      - proxy-tier
-      - default
-
-  # Nginx proxy
-  proxy:
-    build: ./proxy
-    container_name: nextcloud_proxy
-    restart: unless-stopped
-    labels:
-      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
-    volumes:
-      - certs:/etc/nginx/certs:ro
-      - conf.d:/etc/nginx/conf.d
-      - vhost.d:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    ports:
-      - 80:80
-      - 443:443
-    networks:
-      - proxy-tier
-
-  letsencrypt-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: nextcloud_proxy_companion
-    restart: unless-stopped
-    volumes:
-      - certs:/etc/nginx/certs
-      - conf.d:/etc/nginx/conf.d
-      - vhost.d:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - proxy-tier
-    depends_on:
-      - proxy
