@@ -24,8 +24,8 @@ services:
       - INNODB_FILE_FORMAT=barracuda                # Database Requirements from Nextcloud Administration Manual
       - INNODB_FILE_PER_TABLE=on                    # Database Requirements from Nextcloud Administration Manual
     volumes:
-      - $PWD/tmp/db:/mysql/db
-      - $PWD/tmp/db_backup:/mysql/backup
+      - ./tmp/db:/mysql/db
+      - ./tmp/db_backup:/mysql/backup
 
   # Redis
   redis:
@@ -52,10 +52,10 @@ services:
       - PHP_FPM_PM_MIN_SPARE_SERVERS=6              #
       - PHP_FPM_PM_MAX_SPARE_SERVERS=18             #
       - CORE_FILE_UPLOADS=1                         #
-      - CORE_UPLOAD_TMP_DIR=/var/www/upload-tmp     #
-      - CORE_UPLOAD_MAX_FILESIZE=4G                 #
-      - CORE_POST_MAX_SIZE=4G                       # More tunning
-      - CORE_OUTPUT_BUFFERING=0                     # https://www.techandme.se/increase-max-file-size/
+      - CORE_UPLOAD_TMP_DIR=/tmp/php/upload         #
+      - CORE_UPLOAD_MAX_FILESIZE=10G                #
+      - CORE_POST_MAX_SIZE=10G                      # More tunning
+      - CORE_OUTPUT_BUFFERING=off                   # https://www.techandme.se/increase-max-file-size/
       - CORE_MAX_INPUT_TIME=7200                    #
       - CORE_MAX_EXECUTION_TIME=7200                #
       - CORE_MEMORY_LIMIT=1024M
@@ -67,7 +67,7 @@ services:
       - NEXTCLOUD_ADMIN_PASSWORD=My@dminP@ssw0rd
     volumes:
       - nextcloud_www:/var/www
-      - $PWD/tmp/nextcloud:/nextcloud
+      - ./tmp/nextcloud:/nextcloud
     depends_on:
       - db
       - redis
@@ -83,7 +83,7 @@ services:
     restart: unless-stopped
     volumes:
       - nextcloud_www:/var/www:ro
-      - $PWD/tmp/nextcloud/log:/var/log
+      - ./tmp/nextcloud/log:/var/log
     ports:
         - "80:80"
     depends_on:
