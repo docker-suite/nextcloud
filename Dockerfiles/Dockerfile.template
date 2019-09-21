@@ -10,8 +10,8 @@ ENV NEXTCLOUD_MAJOR="{{NEXTCLOUD_MAJOR}}" \
 
 
 ## php packages
-COPY --from=dsuite/repo-php:all /repo /tmp/repo
-COPY --from=dsuite/repo-php:all /etc/apk/keys /etc/apk/keys
+COPY --from=dsuite/repo-php:3.9 /repo /tmp/repo
+COPY --from=dsuite/repo-php:3.9 /etc/apk/keys /etc/apk/keys
 
 
 # Install

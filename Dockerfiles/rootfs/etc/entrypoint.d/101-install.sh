@@ -5,8 +5,10 @@ source /usr/local/lib/bash-logger.sh
 source /usr/local/lib/persist-env.sh
 
 # version_greater A B returns whether A > B
- version_greater() {
-    [ "$(printf '%s\n' "$@" | sort -g | head -n 1)" != "$1" ];
+version_greater() {
+    v1=$(echo "$1" | cut -d'.' -s -f1,2,3)
+    v2=$(echo "$2" | cut -d'.' -s -f1,2,3)
+    [ "$(printf '%s\n' "$v1" "$v2" | sort -g | head -n 1)" != "$v1" ];
 }
 
 # return true if specified directory is empty
@@ -21,7 +23,7 @@ run_as() {
 NOTICE "Checking nextcloud version..."
 
 # Get the installed version and the image version
-installed_version="0.0.0~unknown"
+installed_version="0.0.0.unknown"
 if [ -f ${ocpath}/version.php ]; then
     installed_version=$(php -r 'require "/var/www/version.php"; echo "$OC_VersionString";')
 fi
@@ -45,7 +47,7 @@ DEBUG "##################################################################"
 # This will always happen if you don't mount /var/www
 if version_greater "$image_version" "$installed_version"; then
     #
-    if [ "$installed_version" != "0.0.0~unknown" ]; then
+    if [ "$installed_version" != "0.0.0.unknown" ]; then
         NOTICE "Updating nextcloud files to $image_version..."
     else
         NOTICE "Installing nextcloud $image_version..."
@@ -103,7 +105,7 @@ fi
 # Get installed version from config
 # This is necessary if you don't mount /var/www
 if [ -f /var/www/config/config.php ]; then
-    installed_version=$(php -r 'require "/var/www/config/config.php"; echo array_key_exists("version",$CONFIG) ? $CONFIG["version"] : "0.0.0~unknown";')
+    installed_version=$(php -r 'require "/var/www/config/config.php"; echo array_key_exists("version",$CONFIG) ? $CONFIG["version"] : "0.0.0.unknown";')
 fi
 
 # Can't start Nextcloud if installed_version is greater than image_version
@@ -121,7 +123,7 @@ DEBUG "image_version: $image_version"
 DEBUG "##################################################################"
 
 # Launch the update process if nextcloud is already installed
-if [ "$installed_version" != "0.0.0~unknown" ]; then
+if [ "$installed_version" != "0.0.0.unknown" ]; then
     NOTICE "Upgrading nextcloud to $image_version..."
     # Adjust file permissions
     find ${ocpath}/ -type d -print0 | xargs -0 chmod 0750
