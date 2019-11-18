@@ -22,8 +22,8 @@
     #log     stdout
     #errors  stdout
 
-    #
-	gzip
+    # Temporary disable gzip (ETag headers)
+	#gzip
 
     #
 	fastcgi / {{PHP_FPM_HOST}}:{{PHP_FPM_PORT}} php {
