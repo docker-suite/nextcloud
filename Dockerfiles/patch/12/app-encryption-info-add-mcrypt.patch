@@ -1,0 +1,10 @@
+--- a/apps/encryption/appinfo/info.xml
++++ b/apps/encryption/appinfo/info.xml
+@@ -24,6 +24,7 @@
+ 	</types>
+ 	<dependencies>
+ 		<lib>openssl</lib>
++		<lib>mcrypt</lib>
+ 		<nextcloud min-version="12" max-version="12" />
+ 	</dependencies>
+ 	<settings>

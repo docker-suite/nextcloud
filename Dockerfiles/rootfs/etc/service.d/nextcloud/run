@@ -12,8 +12,10 @@ source /usr/local/lib/persist-env.sh
 exec 2>&1
 
 #
-export DATABASE_HOST=${MYSQL_HOST:=POSTGRES_HOST}
-export ocuser=${ocuser}
+POSTGRES_HOST=$(env_get "POSTGRES_HOST")
+MYSQL_HOST=$(env_get "MYSQL_HOST")
+DATABASE_HOST=${MYSQL_HOST:=$POSTGRES_HOST}
+NEXTCLOUD_USER=${NEXTCLOUD_USER}
 
 # Wait for database connection
 if [ -n "$DATABASE_HOST" ]; then
@@ -38,7 +40,7 @@ fi
 # Start nextcloud
 NOTICE ''
 NOTICE 'Starting Nextcloud'
-exec su-exec ${ocuser} php-fpm
+exec su-exec ${NEXTCLOUD_USER} php-fpm
 
 # This exit code will be sent as the first parameter to the finish script
 exit 1

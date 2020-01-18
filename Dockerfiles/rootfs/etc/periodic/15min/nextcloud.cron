@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Run only when nextcloud service is started.
+if [ -f "/etc/service/nextcloud/supervise/lock" ]; then
+	su $NEXTCLOUD_USER -s /bin/sh -c "php -f $NEXTCLOUD_WWW_DIR/cron.php"
+fi

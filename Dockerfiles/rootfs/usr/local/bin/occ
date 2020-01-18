@@ -12,14 +12,15 @@ source /usr/local/lib/persist-env.sh
 exec 2>&1
 
 #
-ocuser=$(env_get ocuser)
-rootuser=$(env_get rootuser)
-ocpath=$(env_get ocpath)
-CORE_MEMORY_LIMIT=$(env_get CORE_MEMORY_LIMIT)
+NEXTCLOUD_USER=$(env_get "NEXTCLOUD_USER")
+NEXTCLOUD_WWW_DIR=$(env_get "NEXTCLOUD_WWW_DIR")
+CORE_MEMORY_LIMIT=$(env_get "CORE_MEMORY_LIMIT")
 
 # execute occ
-if [ "$(ls -l ${ocpath}/config/config.php  | awk '{ print $3 }')" = "root" ]; then
-    su-exec ${rootuser} php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${ocpath}/occ "$@"
-else
-    su-exec ${ocuser} php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${ocpath}/occ "$@"
+if [ -f "${NEXTCLOUD_WWW_DIR}/config/config.php" ]; then
+    if [ "$(id -un)" != "$NEXTCLOUD_USER" ]; then
+        su-exec root php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${NEXTCLOUD_WWW_DIR}/occ "$@"
+    else
+        su-exec ${NEXTCLOUD_USER} php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${NEXTCLOUD_WWW_DIR}/occ "$@"
+    fi
 fi

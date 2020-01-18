@@ -1,6 +1,6 @@
 <?php
 $CONFIG = array (
-    'datadirectory' => '/nextcloud/data',
-    'logfile' => '/var/log/nextcloud.log',
-    'tempdirectory' => '/tmp/php/upload',
+    'datadirectory' => getenv('NEXTCLOUD_DATA_DIR'),
+    'logfile' => getenv('NEXTCLOUD_LOG_DIR') . '/nextcloud.log',
+    'tempdirectory' => getenv('NEXTCLOUD_TMP_DIR'),
 );

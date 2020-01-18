@@ -1,33 +1,33 @@
-FROM dsuite/alpine-php7:{{NEXTCLOUD_PHP}}
+FROM dsuite/alpine-php:{{NEXTCLOUD_PHP}}-fpm
+
 
 LABEL maintainer="Hexosse <hexosse@gmail.com>" \
       description="Nextcloud image based on alpine with runit process supervisor." \
       vendor="docker-suite" \
       license="MIT"
 
+
 ENV NEXTCLOUD_MAJOR="{{NEXTCLOUD_MAJOR}}" \
-    NEXTCLOUD_VERSION="{{NEXTCLOUD_VERSION}}"
+    NEXTCLOUD_VERSION="{{NEXTCLOUD_VERSION}}" \
+    NEXTCLOUD_INSTALL_DIR="/usr/src/nextcloud" \
+    NEXTCLOUD_DATA_DIR="/nextcloud/data" \
+    NEXTCLOUD_CONFIG_DIR="/nextcloud/config" \
+    NEXTCLOUD_APPS_DIR="/nextcloud/appstore" \
+    NEXTCLOUD_THEMES_DIR="/nextcloud/themes" \
+    NEXTCLOUD_WWW_DIR="/var/www" \
+    NEXTCLOUD_LOG_DIR="/var/log/nextcloud" \
+    NEXTCLOUD_TMP_DIR="/tmp/nextcloud" \
+    NEXTCLOUD_USER="nextcloud" \
+    NEXTCLOUD_GROUP="www-data"
 
 
-## php packages
-COPY --from=dsuite/repo-php:3.9 /repo /tmp/repo
-COPY --from=dsuite/repo-php:3.9 /etc/apk/keys /etc/apk/keys
-
-
-# Install
 RUN \
 	# Print executed commands
 	set -x \
     # Update repository indexes
     && apk update \
-    # Create nextcloud group
-    && addgroup -S nextcloud \
-    # Create nextcloud user
-    && adduser -D -S -G nextcloud nextcloud \
-    # nextcloud user must be memnber of www-data
-    && adduser nextcloud www-data \
-    # Add recommanded packages : https://docs.nextcloud.com/server/16/admin_manual/installation/source_installation.html#prerequisites-label
-    && apk-install --repository /tmp/repo/php/v3.9 \
+    # Install php{{NEXTCLOUD_PHP}}
+    && apk-install \
         # Required : ctype, dom, GD, iconv, JSON, libxml, mbstring, posix, SimpleXML, XMLReader, XMLWriter ,zip, zlib
         php{{NEXTCLOUD_PHP}}-ctype \
         php{{NEXTCLOUD_PHP}}-dom \
@@ -42,29 +42,29 @@ RUN \
         php{{NEXTCLOUD_PHP}}-xmlwriter \
         php{{NEXTCLOUD_PHP}}-zip \
         php{{NEXTCLOUD_PHP}}-zlib \
-        # Database connectors : pdo_sqlite, pdo_mysql, pdo_pgsql
-        php{{NEXTCLOUD_PHP}}-pdo_sqlite \
-        php{{NEXTCLOUD_PHP}}-pdo_mysql \
-        php{{NEXTCLOUD_PHP}}-pgsql \
         # Recommended packages : curl, fileinfo, bz2, intl, openssl
         php{{NEXTCLOUD_PHP}}-curl \
         php{{NEXTCLOUD_PHP}}-fileinfo \
         php{{NEXTCLOUD_PHP}}-bz2 \
         php{{NEXTCLOUD_PHP}}-intl \
         php{{NEXTCLOUD_PHP}}-openssl \
-        # Required for specific apps : ldap, **smbclient**, ftp, imap
+        # Required for specific apps : ldap, smbclient, ftp, imap
         php{{NEXTCLOUD_PHP}}-ldap \
+        php{{NEXTCLOUD_PHP}}-smbclient \
         php{{NEXTCLOUD_PHP}}-ftp \
         php{{NEXTCLOUD_PHP}}-imap \
         # Recommended for specific apps : exif, gmp
         php{{NEXTCLOUD_PHP}}-exif \
         php{{NEXTCLOUD_PHP}}-gmp \
+        # Database connectors : pdo_sqlite, pdo_mysql, pdo_pgsql
+        php{{NEXTCLOUD_PHP}}-pdo_sqlite \
+        php{{NEXTCLOUD_PHP}}-pdo_mysql \
+        php{{NEXTCLOUD_PHP}}-pdo_pgsql \
         # For enhanced server performance : apcu, memcached, redis
         php{{NEXTCLOUD_PHP}}-apcu \
         php{{NEXTCLOUD_PHP}}-memcached \
         php{{NEXTCLOUD_PHP}}-redis \
         # For preview generation : imagick, avconv or ffmpeg, OpenOffice or LibreOffice
-        imagemagick-libs \
         php{{NEXTCLOUD_PHP}}-imagick \
         ffmpeg libva \
         libreoffice icu-libs \
@@ -76,63 +76,65 @@ RUN \
     # Add packages used in this image
     && apk-install --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
         rsync \
-    # Download, build and instal libsmbclient-php
-    # Add necessary packages to install libsmbclient-php
-    && apk-install --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
-        samba \
-    # Add temporary packages to compile libsmbclient-php
-    && apk-install --repository /tmp/repo/php/v3.9 --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --virtual .nextcloud-build-deps \
-        git \
-        autoconf \
-        automake \
-        file \
-        g++ \
-        gcc \
-        make \
-        php{{NEXTCLOUD_PHP}}-dev \
-        re2c \
-        samba-dev \
-        zlib-dev \
-    # Compile libsmbclient-php
-    && git clone https://github.com/eduardok/libsmbclient-php.git /tmp/smbclient \
-    && cd /tmp/smbclient \
-    && phpize \
-    && ./configure --with-php-config=/usr/bin/php-config \
-    && make \
-    && make install \
-    # Activate libsmbclient-php
-    && echo "extension=\"smbclient.so\"" > /etc/php7/conf.d/00_smbclient.ini \
-    # Remove existing service
+    # Remove existing php-fpm service
 	&& rm -rf /etc/service.d/php-fpm \
+    # Remove default php-fpm.d conf file generation
+    && rm -f /etc/entrypoint.d/302-php-fpm-conf.sh \
 	# Clear apk's cache
-	&& apk-remove .nextcloud-build-deps \
 	&& apk-cleanup
 
 
-# Copy GPG key
+# Copy nextcloud GPG key
 COPY /nextcloud.asc /nextcloud.asc
 
+# Copy patch files
+COPY /patch/{{NEXTCLOUD_MAJOR}} /tmp/patch
 
-# Download, install and verify Nextcloud
+
+# Download, patch and install Nextcloud {{NEXTCLOUD_MAJOR}}
 RUN \
 	# Print executed commands
 	set -x \
-    # Download
+    # Update repository indexes
+    && apk update \
+    # Create nextcloud user
+    && adduser -S -D -H -s /sbin/nologin -G $NEXTCLOUD_GROUP -g $NEXTCLOUD_USER $NEXTCLOUD_USER \
+    # Download nextcloud {{NEXTCLOUD_MAJOR}}
     && nextcloud_url="https://download.nextcloud.com/server/releases/" \
     && curl -fSL "${nextcloud_url}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" -o /tmp/nextcloud.tar.bz2 \
     && curl -fSL "${nextcloud_url}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2.asc" -o /tmp/nextcloud.tar.bz2.asc \
     && GPG_KEYS=/nextcloud.asc gpg-verify /tmp/nextcloud.tar.bz2.asc /tmp/nextcloud.tar.bz2 \
-    # Extract
-    && mkdir /usr/src/ \
-	&& tar -xjf /tmp/nextcloud.tar.bz2 -C /usr/src/ \
-    #
-    && rm -rf /usr/src/nextcloud/updater \
-    && mkdir -p /usr/src/nextcloud/assets \
-    && mkdir -p /usr/src/nextcloud/config \
-    && mkdir -p /usr/src/nextcloud/custom_apps \
-    && mkdir -p /usr/src/nextcloud/themes \
-    && mkdir -p /usr/src/nextcloud/updater \
-    && chmod +x /usr/src/nextcloud/occ
+    # Extract nextcloud {{NEXTCLOUD_MAJOR}} to /usr/src/nextcloud
+    && mkdir -p "${NEXTCLOUD_INSTALL_DIR}" \
+	&& tar x -j -f /tmp/nextcloud.tar.bz2 -C /tmp \
+    && cp -a /tmp/nextcloud/. "${NEXTCLOUD_INSTALL_DIR}" \
+    # Apply patch(s) to nextcloud source code
+    && cd "$NEXTCLOUD_INSTALL_DIR" \
+    && for patch in /tmp/patch/*.patch; do patch -p1 -i "$patch"; done \
+	# Let's not ship upstream's 'updatenotification' app and updater, which
+	# has zero chance of working and a big chance of blowing things up.
+	&& rm -r "${NEXTCLOUD_INSTALL_DIR}/apps/updatenotification" \
+             "${NEXTCLOUD_INSTALL_DIR}/lib/private/Updater" \
+	# Replace bundled CA bundle with ours.
+	&& ln -sf "/etc/ssl/certs/ca-certificates.crt" "${NEXTCLOUD_INSTALL_DIR}/resources/config/ca-bundle.crt" \
+    # Clean some unnecessary files.
+	&& find ${NEXTCLOUD_INSTALL_DIR} -name .gitignore -delete \
+		-o -name .bower.json -delete \
+		-o -name 'README*' -delete \
+		-o -name 'CHANGELOG*' -delete \
+		-o -name 'CONTRIBUTING*' -delete \
+	&& find ${NEXTCLOUD_INSTALL_DIR} -name .github -type d -prune -exec rm -r {} \; \
+    # Move doc to an usual folder
+    && mkdir -p "/usr/share/doc/nextcloud/core" \
+    && mv "${NEXTCLOUD_INSTALL_DIR}/core/doc" "/usr/share/doc/nextcloud/core" \
+    # Change owner to nextcloud:www-data
+    && chown -R $NEXTCLOUD_USER:$NEXTCLOUD_GROUP "${NEXTCLOUD_INSTALL_DIR}" \
+    # Update access permissions
+	&& chmod +x "${NEXTCLOUD_INSTALL_DIR}/occ" \
+    && chmod 664 "${NEXTCLOUD_INSTALL_DIR}/.htaccess" \
+		         "${NEXTCLOUD_INSTALL_DIR}/.user.ini" \
+	# Clear apk's cache
+	&& apk-cleanup
 
 
 # Copy scripts
@@ -143,10 +145,10 @@ COPY /rootfs /
 RUN \
 	# Print executed commands
 	set -x \
-    # entrypoint scripts
-    && chmod +x /etc/entrypoint.d/*.sh \
-    # bin scripts
-    && find /usr/local/bin/ -type f -print0 | xargs -0 chmod +x
+    # Change owner to nextcloud:www-data
+    && chown -R $NEXTCLOUD_USER:$NEXTCLOUD_GROUP "${NEXTCLOUD_INSTALL_DIR}/config" \
+    # Make occ executable
+    && chmod -x /usr/local/bin/occ
 
 
 # Add volume to allow persistence

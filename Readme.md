@@ -1,4 +1,4 @@
-# ![](https://github.com/docker-suite/artwork/raw/master/logo/png/logo_32.png) nextcloud-fpm
+# ![](https://github.com/docker-suite/artwork/raw/master/logo/png/logo_32.png) nextcloud
 [![Build Status](http://jenkins.hexocube.fr/job/docker-suite/job/nextcloud-fpm/badge/icon?color=green&style=flat-square)](http://jenkins.hexocube.fr/job/docker-suite/job/nextcloud-fpm/)
 ![Docker Pulls](https://img.shields.io/docker/pulls/dsuite/nextcloud-fpm.svg?style=flat-square)
 ![Docker Stars](https://img.shields.io/docker/stars/dsuite/nextcloud-fpm.svg?style=flat-square)
@@ -47,7 +47,7 @@ The full list of php7 environment variables is available on [alpine-php7 github 
 
 - **/nextcloud**
     - `/nextcloud/config/`
-    - `/nextcloud/custom_apps/`
+    - `/nextcloud/appstore/`
     - `/nextcloud/data`
     - `/nextcloud/themes`
 - **/var/www**

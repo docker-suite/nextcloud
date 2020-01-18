@@ -5,41 +5,10 @@ volumes:
 
 services:
 
-  # Database
-  db:
-    image: dsuite/mariadb:10.1
-    container_name: nextcloud_db
-    restart: unless-stopped
-    environment:
-      - DEBUG_LEVEL=DEBUG
-      - http_proxy=${http_proxy}
-      - https_proxy=${https_proxy}
-      - TIMEZONE=Europe/Paris
-      - MYSQL_ROOT_PASSWORD=MyRootPassword          # Change data base root password
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_PASSWORD=MyDbPassword
-      - CHARACTER_SET_SERVER=utf8mb4                # Database Requirements from Nextcloud Administration Manual
-      - COLLATION_SERVER=utf8mb4_general_ci         # Database Requirements from Nextcloud Administration Manual
-      - INNODB_LARGE_PREFIX=on                      # Database Requirements from Nextcloud Administration Manual
-      - INNODB_FILE_FORMAT=barracuda                # Database Requirements from Nextcloud Administration Manual
-      - INNODB_FILE_PER_TABLE=on                    # Database Requirements from Nextcloud Administration Manual
-      - MYSQL_INNODB_USE_NATIVE_AIO=0
-    #volumes:
-    #  - ./tmp/db:/mariadb/data
-    #  - ./tmp/db_backup:/mariadb/backup
-    #  - ./tmp/log:/var/log
-
-  # Redis
-  redis:
-    image: redis:alpine
-    container_name: nextcloud_redis
-    restart: unless-stopped
-
   # Nextcloud
   app:
     build:
-      context: ./app
+      context:  ./app
       args:
         - http_proxy=${http_proxy}
         - https_proxy=${https_proxy}
@@ -67,20 +36,13 @@ services:
       - CORE_MAX_INPUT_TIME=7200                    #
       - CORE_MAX_EXECUTION_TIME=7200                #
       - CORE_MEMORY_LIMIT=1024M
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_PASSWORD=MyDbPassword
-      - MYSQL_HOST=db:3306
-      - REDIS_HOST=redis
+      - SQLITE_DATABASE=sqlite.db
       - NEXTCLOUD_ADMIN_USER=admin                  # You can create the admin user here
       - NEXTCLOUD_ADMIN_PASSWORD=My@dminP@ssw0rd
     volumes:
       - nextcloud_www:/var/www
       - ./tmp/nextcloud:/nextcloud
       - ./tmp/log:/var/log
-    depends_on:
-      - db
-      - redis
 
   # Nginx
   web:
@@ -99,6 +61,6 @@ services:
       - nextcloud_www:/var/www:ro
       - ./tmp/log/nginx:/var/log
     ports:
-        - 8002:80
+        - 8001:80
     depends_on:
       - app
