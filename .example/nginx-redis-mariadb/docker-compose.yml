@@ -2,12 +2,13 @@ version: '3'
 
 volumes:
   nextcloud_www:
+  nextcloud_db:
 
 services:
 
   # Database
   db:
-    image: dsuite/mariadb:10.1
+    image: dsuite/mariadb:10.4
     container_name: nextcloud_db
     restart: unless-stopped
     environment:
@@ -25,10 +26,11 @@ services:
       - INNODB_FILE_FORMAT=barracuda                # Database Requirements from Nextcloud Administration Manual
       - INNODB_FILE_PER_TABLE=on                    # Database Requirements from Nextcloud Administration Manual
       - MYSQL_INNODB_USE_NATIVE_AIO=0
-    #volumes:
-    #  - ./tmp/db:/mariadb/data
-    #  - ./tmp/db_backup:/mariadb/backup
-    #  - ./tmp/log:/var/log
+    volumes:
+      - nextcloud_db:/mariadb/data
+      - ./tmp/config:/mariadb/config
+      - ./tmp/db_backup:/mariadb/backup
+      - ./tmp/log:/var/log
 
   # Redis
   redis:
