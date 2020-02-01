@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2015
+
 # Nextcloud environnement variables
 env_set "NEXTCLOUD_MAJOR"       "$(env_get "NEXTCLOUD_MAJOR")"
 env_set "NEXTCLOUD_VERSION"     "$(env_get "NEXTCLOUD_VERSION")"
@@ -12,6 +14,17 @@ env_set "NEXTCLOUD_WWW_DIR"     "$(env_get "NEXTCLOUD_WWW_DIR")"
 env_set "NEXTCLOUD_LOG_DIR"     "$(env_get "NEXTCLOUD_LOG_DIR")"
 env_set "NEXTCLOUD_USER"        "$(env_get "NEXTCLOUD_USER")"
 env_set "NEXTCLOUD_GROUP"       "$(env_get "NEXTCLOUD_GROUP")"
+
+# Variables to be used in nextcloud.conf
+[ -n "$(env_get "PHP_FPM_PM")" ]                        && env_set "PHP_FPM_PM" "$(env_get "PHP_FPM_PM")" || true
+[ -n "$(env_get "PHP_FPM_PM_CATCH_WORKERS_OUTPUT")" ]   && env_set "PHP_FPM_PM_CATCH_WORKERS_OUTPUT" "$(env_get "PHP_FPM_PM_CATCH_WORKERS_OUTPUT")" || true
+[ -n "$(env_get "PHP_FPM_PM_CLEAR_ENV")" ]              && env_set "PHP_FPM_PM_CLEAR_ENV" "$(env_get "PHP_FPM_PM_CLEAR_ENV")" || true
+[ -n "$(env_get "PHP_FPM_PM_MAX_CHILDREN")" ]           && env_set "PHP_FPM_PM_MAX_CHILDREN" "$(env_get "PHP_FPM_PM_MAX_CHILDREN")" || true
+[ -n "$(env_get "PHP_FPM_PM_MAX_REQUEST")" ]            && env_set "PHP_FPM_PM_MAX_REQUEST" "$(env_get "PHP_FPM_PM_MAX_REQUEST")" || true
+[ -n "$(env_get "PHP_FPM_PM_MAX_SPARE_SERVERS")" ]      && env_set "PHP_FPM_PM_MAX_SPARE_SERVERS" "$(env_get "PHP_FPM_PM_MAX_SPARE_SERVERS")" || true
+[ -n "$(env_get "PHP_FPM_PM_MIN_SPARE_SERVERS")" ]      && env_set "PHP_FPM_PM_MIN_SPARE_SERVERS" "$(env_get "PHP_FPM_PM_MIN_SPARE_SERVERS")" || true
+[ -n "$(env_get "PHP_FPM_PM_PROCESS_IDLE_TIMEOUT")" ]   && env_set "PHP_FPM_PM_PROCESS_IDLE_TIMEOUT" "$(env_get "PHP_FPM_PM_PROCESS_IDLE_TIMEOUT")" || true
+[ -n "$(env_get "PHP_FPM_PM_START_SERVER")" ]           && env_set "PHP_FPM_PM_START_SERVER" "$(env_get "PHP_FPM_PM_START_SERVER")" || true
 
 # Nextcloud database environnement variables
 ## Sqlite

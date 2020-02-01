@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2086
+
 # Create folders
 mkdir -p "$NEXTCLOUD_DATA_DIR"
 mkdir -p "$NEXTCLOUD_CONFIG_DIR"
