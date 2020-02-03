@@ -25,10 +25,9 @@ services:
       - INNODB_LARGE_PREFIX=on                      # Database Requirements from Nextcloud Administration Manual
       - INNODB_FILE_FORMAT=barracuda                # Database Requirements from Nextcloud Administration Manual
       - INNODB_FILE_PER_TABLE=on                    # Database Requirements from Nextcloud Administration Manual
-      - MYSQL_INNODB_USE_NATIVE_AIO=0
     volumes:
-      - nextcloud_db:/mariadb/data
       - ./tmp/config:/mariadb/config
+      - nextcloud_db:/mariadb/data
       - ./tmp/db_backup:/mariadb/backup
       - ./tmp/log:/var/log
 
@@ -104,3 +103,17 @@ services:
         - 8002:80
     depends_on:
       - app
+
+
+  # phpmyadmin:
+  #   image: phpmyadmin/phpmyadmin
+  #   restart: always
+  #   environment:
+  #     - PMA_HOST=db
+  #     - PMA_PORT=3306
+  #   ports:
+  #     - 8080:80
+  #   volumes:
+  #     - /sessions
+  #   depends_on:
+  #     - db

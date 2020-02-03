@@ -5,7 +5,7 @@ DOCKER_IMAGE=dsuite/nextcloud
 DIR:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 
 ## Define the latest version of nextcloud
-latest = 17
+latest = 18
 
 # env file
 include $(DIR)/make.env

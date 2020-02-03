@@ -12,6 +12,7 @@ help: ## Display this help
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[32m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 build: ## Build containers
+	@mkdir -p $(DIR)/tmp/config $(DIR)/tmp/db_backup $(DIR)/tmp/nextcloud $(DIR)/tmp/log
 	docker-compose --project-name nextcloud build
 
 up: build ## Run containers
@@ -30,4 +31,4 @@ clean:  ## Clean up
 	@docker images -q --filter "dangling=true" | xargs -I {} docker rmi -f {}
 
 remove: clean
-	@rm -rf $(DIR)/tmp
+	@rm -rf $(DIR)/tmp || true
