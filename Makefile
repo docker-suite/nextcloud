@@ -1,5 +1,7 @@
-## Name of the image
+## Meta data about the image
 DOCKER_IMAGE=dsuite/nextcloud
+DOCKER_IMAGE_CREATED=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+DOCKER_IMAGE_REVISION=$(shell git rev-parse --short HEAD)
 
 ## Current directory
 DIR:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
@@ -28,6 +30,8 @@ build: ## Build a specific version of nextcloud ( make build v=12)
 		-e NEXTCLOUD_PHP=$(NEXTCLOUD_$(version)_PHP) \
 		-e NEXTCLOUD_MAJOR=$(NEXTCLOUD_$(version)_MAJOR) \
 		-e NEXTCLOUD_VERSION=$(NEXTCLOUD_$(version)_VERSION) \
+		-e DOCKER_IMAGE_CREATED=$(DOCKER_IMAGE_CREATED) \
+		-e DOCKER_IMAGE_REVISION=$(DOCKER_IMAGE_REVISION) \
 		-v $(DIR)/Dockerfiles:/data \
 		dsuite/alpine-data \
 		sh -c "templater Dockerfile.template > Dockerfile-$(NEXTCLOUD_$(version)_MAJOR)"
