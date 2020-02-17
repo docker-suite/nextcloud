@@ -105,7 +105,7 @@ RUN \
     # Create nextcloud user
     && adduser -S -D -H -s /sbin/nologin -G $NEXTCLOUD_GROUP -g $NEXTCLOUD_USER $NEXTCLOUD_USER \
     # Download nextcloud {{NEXTCLOUD_MAJOR}}
-    && nextcloud_url="https://download.nextcloud.com/server/releases/" \
+    && nextcloud_url="https://download.nextcloud.com/server/releases" \
     && curl -fSL "${nextcloud_url}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" -o /tmp/nextcloud.tar.bz2 \
     && curl -fSL "${nextcloud_url}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2.asc" -o /tmp/nextcloud.tar.bz2.asc \
     && GPG_KEYS=/nextcloud.asc gpg-verify /tmp/nextcloud.tar.bz2.asc /tmp/nextcloud.tar.bz2 \
