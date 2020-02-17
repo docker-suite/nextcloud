@@ -2,7 +2,7 @@ FROM dsuite/alpine-php:{{NEXTCLOUD_PHP}}-fpm
 
 
 LABEL maintainer="Hexosse <hexosse@gmail.com>" \
-    org.opencontainers.image.title="docker-suite dsuite/nextcloud image" \
+    org.opencontainers.image.title="docker-suite dsuite/nextcloud:{{NEXTCLOUD_MAJOR}} image" \
     org.opencontainers.image.description="Nextcloud image based on alpine with runit process supervisor" \
     org.opencontainers.image.authors="Hexosse <hexosse@gmail.com>" \
     org.opencontainers.image.vendor="docker-suite" \
