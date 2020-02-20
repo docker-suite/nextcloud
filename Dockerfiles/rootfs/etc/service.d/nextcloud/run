@@ -11,32 +11,6 @@ source /usr/local/lib/persist-env.sh
 # Redirect STDERR to STDOUT
 exec 2>&1
 
-#
-POSTGRES_HOST=$(env_get "POSTGRES_HOST")
-MYSQL_HOST=$(env_get "MYSQL_HOST")
-DATABASE_HOST=${MYSQL_HOST:=$POSTGRES_HOST}
-NEXTCLOUD_USER=${NEXTCLOUD_USER}
-
-# Wait for database connection
-if [ -n "$DATABASE_HOST" ]; then
-
-    host=$(echo $DATABASE_HOST | cut -d ":" -f 1)
-    port=$(echo $DATABASE_HOST | cut -d ":" -f 2)
-
-    wait-host "${host}:${port}" \
-        -t 0 \
-        -d 2 \
-        -m "Waiting for database connection on host: ${host} and port: ${port}" \
-        -s
-
-    if [ $? ]; then
-        NOTICE "Database connection established on host: ${host} and port: ${port}"
-    else
-        WARNING "Error while trying to connect to the database"
-    fi
-
-fi
-
 # Start nextcloud
 NOTICE ''
 NOTICE 'Starting Nextcloud'
