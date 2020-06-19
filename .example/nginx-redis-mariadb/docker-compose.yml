@@ -105,15 +105,15 @@ services:
       - app
 
 
-  # phpmyadmin:
-  #   image: phpmyadmin/phpmyadmin
-  #   restart: always
-  #   environment:
-  #     - PMA_HOST=db
-  #     - PMA_PORT=3306
-  #   ports:
-  #     - 8080:80
-  #   volumes:
-  #     - /sessions
-  #   depends_on:
-  #     - db
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+    ports:
+      - 8080:80
+    volumes:
+      - /sessions
+    depends_on:
+      - db
