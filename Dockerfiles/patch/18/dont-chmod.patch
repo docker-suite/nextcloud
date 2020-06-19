@@ -24,7 +24,7 @@
 
 --- a/lib/private/legacy/util.php
 +++ b/lib/private/legacy/util.php
-@@ -1011,7 +1011,6 @@ class OC_Util {
+@@ -1009,7 +1009,6 @@ class OC_Util {
  			. ' cannot be listed by other users.');
  		$perms = substr(decoct(@fileperms($dataDirectory)), -3);
  		if (substr($perms, -1) !== '0') {
