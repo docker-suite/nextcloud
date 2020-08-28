@@ -12,6 +12,7 @@ services:
       args:
         - http_proxy=${http_proxy}
         - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
     container_name: nextcloud_app
     restart: unless-stopped
     environment:
@@ -51,6 +52,7 @@ services:
       args:
         - http_proxy=${http_proxy}
         - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
     container_name: nextcloud_web
     restart: unless-stopped
     environment:

@@ -27,6 +27,7 @@ build: ## Build a specific version of nextcloud ( make build v=12)
 	@docker run --rm \
 		-e http_proxy=${http_proxy} \
 		-e https_proxy=${https_proxy} \
+		-e no_proxy=${no_proxy} \
 		-e NEXTCLOUD_PHP=$(NEXTCLOUD_$(version)_PHP) \
 		-e NEXTCLOUD_MAJOR=$(NEXTCLOUD_$(version)_MAJOR) \
 		-e NEXTCLOUD_VERSION=$(NEXTCLOUD_$(version)_VERSION) \
@@ -38,6 +39,7 @@ build: ## Build a specific version of nextcloud ( make build v=12)
 	@docker build \
 		--build-arg http_proxy=${http_proxy} \
 		--build-arg https_proxy=${https_proxy} \
+		--build-arg no_proxy=${no_proxy} \
 		--file $(DIR)/Dockerfiles/Dockerfile-$(NEXTCLOUD_$(version)_MAJOR) \
 		--tag $(DOCKER_IMAGE):$(NEXTCLOUD_$(version)_MAJOR) \
 		$(DIR)/Dockerfiles
@@ -50,6 +52,7 @@ test:  ## Test a specific version of nextcloud ( make test v=12)
 	@docker run --rm -t \
 		-e http_proxy=${http_proxy} \
 		-e https_proxy=${https_proxy} \
+		-e no_proxy=${no_proxy} \
 		-v $(DIR)/tests:/goss \
 		-v /tmp:/tmp \
 		-v /var/run/docker.sock:/var/run/docker.sock \
@@ -68,6 +71,7 @@ shell: ## Get command prompt inside container
 	@docker run -it --rm \
 		-e http_proxy=${http_proxy} \
 		-e https_proxy=${https_proxy} \
+		-e no_proxy=${no_proxy} \
 		-e DEBUG_LEVEL=DEBUG \
 		-e SQLITE_DATABASE=sqlite.db \
 		-v $(DIR)/.tmp/www:/var/www \
@@ -88,6 +92,7 @@ readme: ## Generate docker hub full description
 	@docker run -t --rm \
 		-e http_proxy=${http_proxy} \
 		-e https_proxy=${https_proxy} \
+		-e no_proxy=${no_proxy} \
 		-e DEBUG_LEVEL=DEBUG \
 		-e DOCKER_USERNAME=${DOCKER_USERNAME} \
 		-e DOCKER_PASSWORD=${DOCKER_PASSWORD} \

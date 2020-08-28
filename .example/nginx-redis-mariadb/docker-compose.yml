@@ -15,6 +15,7 @@ services:
       - DEBUG_LEVEL=DEBUG
       - http_proxy=${http_proxy}
       - https_proxy=${https_proxy}
+      - no_proxy=${no_proxy}
       - TIMEZONE=Europe/Paris
       - MYSQL_ROOT_PASSWORD=MyRootPassword          # Change data base root password
       - MYSQL_DATABASE=nextcloud
@@ -44,6 +45,7 @@ services:
       args:
         - http_proxy=${http_proxy}
         - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
     container_name: nextcloud_app
     restart: unless-stopped
     environment:
@@ -90,6 +92,7 @@ services:
       args:
         - http_proxy=${http_proxy}
         - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
     container_name: nextcloud_web
     restart: unless-stopped
     environment:
