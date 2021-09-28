@@ -9,10 +9,6 @@ services:
   app:
     build:
       context:  ./app
-      args:
-        - http_proxy=${http_proxy}
-        - https_proxy=${https_proxy}
-        - no_proxy=${no_proxy}
     container_name: nextcloud_app
     restart: unless-stopped
     environment:
@@ -49,10 +45,6 @@ services:
   web:
     build:
       context: ./web
-      args:
-        - http_proxy=${http_proxy}
-        - https_proxy=${https_proxy}
-        - no_proxy=${no_proxy}
     container_name: nextcloud_web
     restart: unless-stopped
     environment:
@@ -61,8 +53,8 @@ services:
       - PHP_FPM_HOST=app
     volumes:
       - nextcloud_www:/var/www:ro
-      - ./tmp/log/nginx:/var/log
+      - ./tmp/log:/var/log
     ports:
-        - 8001:80
+        - 8080:80
     depends_on:
       - app

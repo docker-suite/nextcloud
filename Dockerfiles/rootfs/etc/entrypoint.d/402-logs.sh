@@ -11,7 +11,7 @@ nextcloud_log="nextcloud.log"
 
 # Create log folder if necessary
 if [[ ! -d "${NEXTCLOUD_LOG_DIR}" ]]; then
-    DEBUG "Creating log folder: $NEXTCLOUD_LOG_DIR"
+    DEBUG "Creating nextcloud log folder: $NEXTCLOUD_LOG_DIR"
     mkdir -p "$NEXTCLOUD_LOG_DIR"
 fi
 
@@ -38,3 +38,12 @@ if [[ -n "$(getent passwd $NEXTCLOUD_USER)" ]] && [[ -n "$(getent group $NEXTCLO
     chown -R $NEXTCLOUD_USER:$NEXTCLOUD_GROUP "$NEXTCLOUD_LOG_DIR"
     chmod 0775 "${NEXTCLOUD_LOG_DIR}"
 fi
+
+
+    # echo "***********************************************"
+    # id
+    # chown -R $NEXTCLOUD_USER:$NEXTCLOUD_GROUP "/var/log/php/7.4"
+    # chmod -R 776  "/var/log/php/7.4"
+
+    # ls -la "/var/log/php/7.4"
+    # echo "***********************************************"

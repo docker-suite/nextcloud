@@ -12,14 +12,14 @@ help: ## Display this help
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[32m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 build: ## Build containers
-	@mkdir -p $(DIR)/tmp/config $(DIR)/tmp/db_backup $(DIR)/tmp/nextcloud $(DIR)/tmp/log
-	docker-compose --project-name nextcloud build
+	@mkdir -p $(DIR)/tmp $(DIR)/tmp/config $(DIR)/tmp/db_backup $(DIR)/tmp/nextcloud $(DIR)/tmp/log
+	@docker-compose --project-name nextcloud build
 
 up: build ## Run containers
-	docker-compose --project-name nextcloud up
+	@docker-compose --project-name nextcloud up
 
 down: ## Stop and remove containers
-	docker-compose --project-name nextcloud down
+	@docker-compose --project-name nextcloud down
 
 clean:  ## Clean up
 	@docker ps -q --filter "name=nextcloud_*" | xargs -I {} docker stop {}

@@ -1,0 +1,31 @@
+--- a/core/register_command.php
++++ b/core/register_command.php
+@@ -155,8 +155,8 @@ if (\OC::$server->getConfig()->getSystem
+ 	$application->add(new OC\Core\Command\Maintenance\DataFingerprint(\OC::$server->getConfig(), new \OC\AppFramework\Utility\TimeFactory()));
+ 	$application->add(new OC\Core\Command\Maintenance\Mimetype\UpdateDB(\OC::$server->getMimeTypeDetector(), \OC::$server->getMimeTypeLoader()));
+ 	$application->add(new OC\Core\Command\Maintenance\Mimetype\UpdateJS(\OC::$server->getMimeTypeDetector()));
+-	$application->add(new OC\Core\Command\Maintenance\Mode(\OC::$server->getConfig()));
+-	$application->add(new OC\Core\Command\Maintenance\UpdateHtaccess());
++    $application->add(new OC\Core\Command\Maintenance\Mode(\OC::$server->getConfig()));
++    $application->add(new OC\Core\Command\Maintenance\UpdateHtaccess());
+ 	$application->add(new OC\Core\Command\Maintenance\UpdateTheme(\OC::$server->getMimeTypeDetector(), \OC::$server->getMemCacheFactory()));
+ 
+ 	$application->add(new OC\Core\Command\Upgrade(\OC::$server->getConfig(), \OC::$server->getLogger(), \OC::$server->query(\OC\Installer::class)));
+
+--- a/lib/private/Updater.php
++++ b/lib/private/Updater.php
+@@ -229,14 +229,6 @@ class Updater extends BasicEmitter {
+ 			throw new \Exception('Updates between multiple major versions and downgrades are unsupported.');
+ 		}
+ 
+-		// Update .htaccess files
+-		try {
+-			Setup::updateHtaccess();
+-			Setup::protectDataDirectory();
+-		} catch (\Exception $e) {
+-			throw new \Exception($e->getMessage());
+-		}
+-
+ 		// create empty file in data dir, so we can later find
+ 		// out that this is indeed an ownCloud data directory
+ 		// (in case it didn't exist before)

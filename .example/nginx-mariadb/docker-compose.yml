@@ -8,14 +8,11 @@ services:
 
   # Database
   db:
-    image: dsuite/mariadb:10.5
+    image: dsuite/mariadb:10.4
     container_name: nextcloud_db
     restart: unless-stopped
     environment:
       - DEBUG_LEVEL=DEBUG
-      - http_proxy=${http_proxy}
-      - https_proxy=${https_proxy}
-      - no_proxy=${no_proxy}
       - TIMEZONE=Europe/Paris
       - MYSQL_ROOT_PASSWORD=MyRootPassword          # Change data base root password
       - MYSQL_DATABASE=nextcloud
@@ -32,20 +29,10 @@ services:
       - ./tmp/db_backup:/mariadb/backup
       - ./tmp/log:/var/log
 
-  # Redis
-  redis:
-    image: redis:alpine
-    container_name: nextcloud_redis
-    restart: unless-stopped
-
   # Nextcloud
   app:
     build:
       context: ./app
-      args:
-        - http_proxy=${http_proxy}
-        - https_proxy=${https_proxy}
-        - no_proxy=${no_proxy}
     container_name: nextcloud_app
     restart: unless-stopped
     environment:
@@ -74,7 +61,6 @@ services:
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=MyDbPassword
       - MYSQL_HOST=db:3306
-      - REDIS_HOST=redis
       - NEXTCLOUD_ADMIN_USER=admin                  # You can create the admin user here
       - NEXTCLOUD_ADMIN_PASSWORD=My@dminP@ssw0rd
     volumes:
@@ -83,16 +69,11 @@ services:
       - ./tmp/log:/var/log
     depends_on:
       - db
-      - redis
 
   # Nginx
   web:
     build:
       context: ./web
-      args:
-        - http_proxy=${http_proxy}
-        - https_proxy=${https_proxy}
-        - no_proxy=${no_proxy}
     container_name: nextcloud_web
     restart: unless-stopped
     environment:
@@ -101,9 +82,9 @@ services:
       - PHP_FPM_HOST=app
     volumes:
       - nextcloud_www:/var/www:ro
-      - ./tmp/log/nginx:/var/log
+      - ./tmp/log:/var/log
     ports:
-        - 8002:80
+        - 8080:80
     depends_on:
       - app
 
@@ -115,7 +96,7 @@ services:
       - PMA_HOST=db
       - PMA_PORT=3306
     ports:
-      - 8080:80
+      - 8081:80
     volumes:
       - /sessions
     depends_on:

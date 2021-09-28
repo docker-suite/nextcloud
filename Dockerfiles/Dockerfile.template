@@ -1,17 +1,17 @@
 FROM dsuite/alpine-php:{{NEXTCLOUD_PHP}}-fpm
 
 
-LABEL maintainer="Hexosse <hexosse@gmail.com>" \
-    org.opencontainers.image.title="docker-suite dsuite/nextcloud:{{NEXTCLOUD_MAJOR}} image" \
-    org.opencontainers.image.description="Nextcloud image based on alpine with runit process supervisor" \
-    org.opencontainers.image.authors="Hexosse <hexosse@gmail.com>" \
-    org.opencontainers.image.vendor="docker-suite" \
-    org.opencontainers.image.licenses="MIT" \
-    org.opencontainers.image.url="https://github.com/docker-suite/nextcloud" \
-    org.opencontainers.image.source="https://github.com/docker-suite/nextcloud" \
-    org.opencontainers.image.documentation="https://github.com/docker-suite/nextcloud/blob/master/Readme.md" \
-    org.opencontainers.image.created="{{DOCKER_IMAGE_CREATED}}" \
-    org.opencontainers.image.revision="{{DOCKER_IMAGE_REVISION}}"
+# LABEL maintainer="Hexosse <hexosse@gmail.com>" \
+#     org.opencontainers.image.title="docker-suite dsuite/nextcloud:{{NEXTCLOUD_MAJOR}} image" \
+#     org.opencontainers.image.description="Nextcloud image based on alpine with runit process supervisor" \
+#     org.opencontainers.image.authors="Hexosse <hexosse@gmail.com>" \
+#     org.opencontainers.image.vendor="docker-suite" \
+#     org.opencontainers.image.licenses="MIT" \
+#     org.opencontainers.image.url="https://github.com/docker-suite/nextcloud" \
+#     org.opencontainers.image.source="https://github.com/docker-suite/nextcloud" \
+#     org.opencontainers.image.documentation="https://github.com/docker-suite/nextcloud/blob/master/Readme.md" \
+#     org.opencontainers.image.created="{{DOCKER_IMAGE_CREATED}}" \
+#     org.opencontainers.image.revision="{{DOCKER_IMAGE_REVISION}}"
 
 
 ENV NEXTCLOUD_MAJOR="{{NEXTCLOUD_MAJOR}}" \
@@ -30,7 +30,7 @@ RUN \
 	# Print executed commands
 	set -x \
     # Update repository indexes
-    && apk update \
+    && apk-update \
     # Install php{{NEXTCLOUD_PHP}}
     && apk-install \
         # Required : ctype, dom, GD, iconv, JSON, libxml, mbstring, posix, SimpleXML, XMLReader, XMLWriter ,zip, zlib
@@ -80,9 +80,8 @@ RUN \
         boost-filesystem \
     # Add packages used in this image
     && apk-install --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
+        patch \
         rsync \
-    # Remove existing php-fpm service
-	&& rm -rf /etc/service.d/php-fpm \
     # Remove default php-fpm.d conf file generation
     && rm -f /etc/entrypoint.d/302-php-fpm-conf.sh \
 	# Clear apk's cache
@@ -101,7 +100,7 @@ RUN \
 	# Print executed commands
 	set -x \
     # Update repository indexes
-    && apk update \
+    && apk-update \
     # Create nextcloud user
     && adduser -S -D -H -s /sbin/nologin -G $NEXTCLOUD_GROUP -g $NEXTCLOUD_USER $NEXTCLOUD_USER \
     # Download nextcloud {{NEXTCLOUD_MAJOR}}
@@ -138,12 +137,14 @@ RUN \
 	&& chmod +x "${NEXTCLOUD_INSTALL_DIR}/occ" \
     && chmod 664 "${NEXTCLOUD_INSTALL_DIR}/.htaccess" \
 		         "${NEXTCLOUD_INSTALL_DIR}/.user.ini" \
+    # prevent APCu error
+    && echo apc.enable_cli=1 >> /etc/php/{{NEXTCLOUD_PHP}}/conf.d/apcu.ini \
 	# Clear apk's cache
 	&& apk-cleanup
 
 
 # Copy scripts
-COPY /rootfs /
+COPY rootfs /
 
 
 # Scripts must be executable

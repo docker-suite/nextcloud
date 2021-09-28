@@ -17,10 +17,10 @@ NEXTCLOUD_WWW_DIR=$(env_get "NEXTCLOUD_WWW_DIR")
 CORE_MEMORY_LIMIT=$(env_get "CORE_MEMORY_LIMIT")
 
 # execute occ
-if [ -f "${NEXTCLOUD_WWW_DIR}/config/config.php" ]; then
-    if [ "$(id -un)" != "$NEXTCLOUD_USER" ]; then
-        su-exec root php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${NEXTCLOUD_WWW_DIR}/occ "$@"
-    else
+if [[ -f "${NEXTCLOUD_WWW_DIR}/config/config.php" ]]; then
+    if [[ "$(id -un)" != "$NEXTCLOUD_USER" ]]; then
         su-exec ${NEXTCLOUD_USER} php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${NEXTCLOUD_WWW_DIR}/occ "$@"
+    else
+        su-exec root php -d memory_limit=${CORE_MEMORY_LIMIT:='512M'} -f ${NEXTCLOUD_WWW_DIR}/occ "$@"
     fi
 fi

@@ -1,0 +1,47 @@
+--- a/lib/private/Config.php
++++ b/lib/private/Config.php
+@@ -247,9 +247,6 @@ class Config {
+ 		touch($this->configFilePath);
+ 		$filePointer = fopen($this->configFilePath, 'r+');
+ 
+-		// Prevent others not to read the config
+-		chmod($this->configFilePath, 0640);
+-
+ 		// File does not exist, this can happen when doing a fresh install
+ 		if (!is_resource($filePointer)) {
+ 			throw new HintException(
+
+--- a/lib/private/TempManager.php
++++ b/lib/private/TempManager.php
+@@ -97,7 +97,6 @@ class TempManager implements ITempManage
+ 			if ($postFix !== '') {
+ 				$fileNameWithPostfix = $this->buildFileNameWithSuffix($file, $postFix);
+ 				touch($fileNameWithPostfix);
+-				chmod($fileNameWithPostfix, 0600);
+ 				$this->current[] = $fileNameWithPostfix;
+ 				return $fileNameWithPostfix;
+ 			}
+
+--- a/lib/private/legacy/OC_Util.php
++++ b/lib/private/legacy/OC_Util.php
+@@ -1020,7 +1020,6 @@ class OC_Util {
+ 
+ 		$perms = substr(decoct(@fileperms($dataDirectory)), -3);
+ 		if (substr($perms, -1) !== '0') {
+-			chmod($dataDirectory, 0770);
+ 			clearstatcache();
+ 			$perms = substr(decoct(@fileperms($dataDirectory)), -3);
+ 			if ($perms[2] !== '0') {
+
+--- a/lib/private/Log/File.php
++++ b/lib/private/Log/File.php
+@@ -83,9 +83,6 @@ class File extends LogDetails implements
+ 	public function write(string $app, $message, int $level) {
+ 		$entry = $this->logDetailsAsJSON($app, $message, $level);
+ 		$handle = @fopen($this->logFile, 'a');
+-		if ($this->logFileMode > 0 && is_file($this->logFile) && (fileperms($this->logFile) & 0777) != $this->logFileMode) {
+-			@chmod($this->logFile, $this->logFileMode);
+-		}
+ 		if ($handle) {
+ 			fwrite($handle, $entry."\n");
+ 			fclose($handle);
