@@ -36,7 +36,7 @@ build-all:
 
 build: ## Build a specific version of nextcloud ( make build v=20)
 	@$(eval version := $(or $(v),$(latest)))
-	@docker run -it --rm \
+	@docker run --rm \
 		-e NEXTCLOUD_PHP=$(NEXTCLOUD_$(version)_PHP) \
 		-e NEXTCLOUD_MAJOR=$(NEXTCLOUD_$(version)_MAJOR) \
 		-e NEXTCLOUD_VERSION=$(NEXTCLOUD_$(version)_VERSION) \
@@ -45,11 +45,11 @@ build: ## Build a specific version of nextcloud ( make build v=20)
 		-v $(DIR)/Dockerfiles:/data \
 		dsuite/alpine-data \
 		bash -c "templater Dockerfile.template > Dockerfile-$(NEXTCLOUD_$(version)_MAJOR)"
-	docker build --no-cache \
+	@docker build --no-cache \
 		--file $(DIR)/Dockerfiles/Dockerfile-$(NEXTCLOUD_$(version)_MAJOR) \
 		--tag $(DOCKER_IMAGE):$(NEXTCLOUD_$(version)_MAJOR) \
 		$(DIR)/Dockerfiles
-	[ "$(version)" = "$(latest)" ] && docker tag $(DOCKER_IMAGE):$(NEXTCLOUD_$(version)_MAJOR) $(DOCKER_IMAGE):latest || true
+	@[ "$(version)" = "$(latest)" ] && docker tag $(DOCKER_IMAGE):$(NEXTCLOUD_$(version)_MAJOR) $(DOCKER_IMAGE):latest || true
 
 
 run: ## Get command prompt inside container
